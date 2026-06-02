@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Monia Training">
+<title>Monia Training</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#0e0e0e}
+body{background:#0e0e0e;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;font-size:14px;min-height:100vh;min-height:-webkit-fill-available}
+button{font-family:inherit;cursor:pointer}
+textarea{font-family:inherit}
+
+.hdr{position:sticky;top:0;z-index:99;background:#0e0e0e;border-bottom:1px solid #222;padding:0 16px;height:52px;display:flex;align-items:center}
+.logo{font-size:20px;font-weight:800;color:#E97B2C;letter-spacing:0.5px}
+.logo b{color:#e8e8e8;font-weight:300}
+
+.tabs{display:flex;gap:6px;padding:12px 16px 0}
+.tab{flex:1;padding:8px 0;border-radius:8px;border:1px solid #2a2a2a;background:transparent;color:#555;font-size:12px;font-weight:700;letter-spacing:0.5px}
+.tab.on{color:#fff}
+
+.prog-card{margin:12px 16px 0;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:12px;padding:14px 16px}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.prog-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#555;text-transform:uppercase}
+.prog-pct{font-size:13px;font-weight:800;color:#E97B2C}
+.prog-bg{background:#222;border-radius:4px;height:5px;margin-bottom:14px;overflow:hidden}
+.prog-bar{height:5px;border-radius:4px;background:#E97B2C;transition:width 0.4s}
+.stats{display:flex}
+.stat{flex:1;text-align:center}
+.stat-num{font-size:26px;font-weight:800;line-height:1}
+.stat-lbl{font-size:9px;color:#444;letter-spacing:0.5px;text-transform:uppercase;margin-top:3px}
+
+.month-label{margin:20px 16px 8px;font-size:10px;font-weight:700;letter-spacing:3px;color:#333;text-transform:uppercase}
+
+.week-section{margin:0 16px 16px}
+.week-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#333;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.deload-tag{background:#1a1a3a;color:#6b7ff0;border:1px solid #2d3561;border-radius:3px;font-size:9px;padding:2px 6px;font-weight:700;letter-spacing:1px}
+
+.deload-week{background:#0f0f1a;border:1px solid #2d3561;border-radius:10px;padding:12px 16px;text-align:center;margin-bottom:8px}
+.deload-week-title{font-size:14px;font-weight:800;color:#6b7ff0;letter-spacing:2px}
+.deload-week-sub{font-size:11px;color:#4a5080;margin-top:4px;line-height:1.5}
+
+.day-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.day-card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform 0.1s,border-color 0.2s}
+.day-card:active{transform:scale(0.97)}
+.day-card.done{border-color:#22c55e}
+
+.card-top{padding:11px 12px 8px;border-bottom:1px solid #222}
+.card-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.card-daynum{font-size:20px;font-weight:800;line-height:1}
+.card-check{width:19px;height:19px;border-radius:50%;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all 0.2s}
+.day-card.done .card-check{background:#22c55e;border-color:#22c55e;color:#fff}
+.card-name{font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase}
+.card-type{font-size:9px;color:#555;margin-top:2px}
+
+.card-body{padding:9px 12px 10px}
+.card-hi{font-size:10px;color:#777;line-height:1.7}
+.card-tags{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap}
+.card-tag{font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.9);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-overlay.open{display:block}
+.modal-box{background:#161616;border-radius:16px 16px 0 0;margin-top:44px;min-height:calc(100vh - 44px);position:relative}
+
+.modal-header{padding:16px 16px 12px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:#161616;z-index:10}
+.modal-daynum{font-size:38px;font-weight:800;line-height:1}
+.modal-name{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.modal-sub{font-size:11px;color:#555;margin-top:2px}
+.modal-close{background:#222;border:1px solid #2a2a2a;color:#666;width:28px;height:28px;border-radius:6px;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:4px;padding:0}
+
+.modal-body{padding:0 16px 48px}
+
+.warmup-block{margin:12px 0 10px;border-radius:8px;overflow:hidden}
+.warmup-title{padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff}
+.warmup-items{padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid #222;border-top:none;border-radius:0 0 8px 8px}
+.warmup-item{font-size:11px;color:#999;padding:2px 0;line-height:1.5}
+
+.section-block{margin:12px 0 6px}
+.section-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#555;margin-bottom:6px}
+.upgraded-tag{display:flex;gap:5px;background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.25);border-radius:5px;padding:6px 10px;margin-bottom:7px;font-size:10px;color:#93c5fd;line-height:1.4}
+.upgraded-arrow{flex-shrink:0;margin-top:1px}
+
+.ex-list{display:flex;flex-direction:column;gap:1px}
+.ex-row{padding:9px 10px;display:grid;grid-template-columns:1fr 22px;gap:5px;border-radius:4px;align-items:start;transition:opacity 0.2s}
+.ex-row:nth-child(odd){background:#1c1c1c}
+.ex-row:nth-child(even){background:#1a1a1a}
+.ex-row.ticked{opacity:0.4}
+.ex-info{}
+.ex-name{font-size:11px;font-weight:500;color:#e8e8e8;line-height:1.3}
+.ex-weight{font-size:10px;color:#d97706;font-weight:700;margin-top:2px}
+.ex-sets{font-size:10px;color:#777;margin-top:1px}
+.ex-note{font-size:9px;color:#555;margin-top:3px;font-style:italic;line-height:1.4}
+.ex-tick{width:22px;height:22px;border-radius:50%;border:1.5px solid #333;background:transparent;color:transparent;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;padding:0;transition:all 0.15s}
+.ex-tick.on{background:#22c55e;border-color:#22c55e;color:#fff}
+
+.finisher-block{margin-top:12px;border-radius:8px;overflow:hidden}
+.finisher-title{background:#dc2626;padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff}
+.finisher-body{background:#1a0808;border:1px solid #3a1008;border-top:none;border-radius:0 0 8px 8px;padding:9px 12px}
+.finisher-item{font-size:11px;color:#ccc;padding:2px 0;line-height:1.5}
+
+.notes-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:12px 0 5px}
+.notes-input{width:100%;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:8px;color:#e8e8e8;font-size:13px;padding:10px 12px;resize:none;height:75px;outline:none;display:block;-webkit-appearance:none}
+.notes-input:focus{border-color:#E97B2C}
+
+.complete-btn{width:100%;margin-top:12px;padding:14px;border-radius:10px;font-size:14px;font-weight:700;display:block;letter-spacing:0.5px;-webkit-appearance:none}
+.complete-btn.mark{background:#E97B2C;border:none;color:#fff}
+.complete-btn.unmark{background:transparent;border:1px solid #22c55e;color:#22c55e}
+
+.pb{padding-bottom:32px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">MONIA<b> · Training</b></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab on" onclick="switchBlock(0)">B1</button>
+  <button class="tab" onclick="switchBlock(1)">B2</button>
+  <button class="tab" onclick="switchBlock(2)">B3</button>
+  <button class="tab" onclick="switchBlock(3)">B4</button>
+</div>
+
+<div class="prog-card">
+  <div class="prog-top">
+    <span class="prog-label">Overall Progress</span>
+    <span class="prog-pct" id="pct-lbl">0%</span>
+  </div>
+  <div class="prog-bg"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" style="color:#E97B2C" id="s-done">0</div><div class="stat-lbl">Done</div></div>
+    <div class="stat"><div class="stat-num" id="s-total">48</div><div class="stat-lbl">Total</div></div>
+    <div class="stat"><div class="stat-num" style="color:#22c55e" id="s-weeks">0</div><div class="stat-lbl">Weeks</div></div>
+  </div>
+</div>
+
+<div id="plan-area" class="pb"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-daynum" id="m-dn"></div>
+        <div class="modal-name" id="m-nm"></div>
+        <div class="modal-sub" id="m-sb"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<script>
+// ── WEIGHT PROGRESSIONS ──────────────────────────────────────────────────────
+var W = {
+  bench: [27.5,30,32.5,35,37.5,37.5,37.5,38,38,35,37.5,40],
+  pull:  [35,38,40,42,45,47,48,50,50,45,47,50],
+  rd:    [12,12,13,13,14,14,15,15,15,12,13,14],
+  lat:   [15,15,15,16,16,17,17,17,17,15,15,16],
+  curl:  [15,15,17,17,18,18,20,20,20,17,18,20],
+  hip:   [45,50,55,60,62,65,67,70,72,60,65,70],
+  dl:    [45,47,50,52,55,58,60,62,65,55,58,62],
+  sq:    [12,13,14,15,16,17,18,19,20,15,16,18],
+  sh:    [12,13,14,14,15,16,16,17,17,14,15,16],
+  far:   [16,16,18,18,20,20,20,20,20,18,20,20],
+  lun:   [12,12,14,14,14,16,16,16,16,14,14,16],
+  chin:  ["Neg 5x4","Neg 5x5","Neg 5x6","Full 5x3","Full 5x4","Full 5x5","+5kg","+7.5kg","+10kg","+7.5kg","+10kg","+12kg"]
+};
+
+var BCOL = ['#E97B2C','#C2410C','#2563eb','#16a34a'];
+var DCOL = ['#E97B2C','#C2410C','#16a34a','#dc2626'];
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+var curBlock = 0;
+var curModal = null;
+
+function loadState(k, def) {
+  try { return JSON.parse(localStorage.getItem('mt4_' + k)) || def; } catch(e) { return def; }
+}
+function saveState(k, v) {
+  try { localStorage.setItem('mt4_' + k, JSON.stringify(v)); } catch(e) {}
+}
+
+var DONE  = loadState('done', {});
+var NOTES = loadState('notes', {});
+var EXDONE = loadState('exd', {});
+
+function sk(b,m,w,d) { return b+''+m+''+w+''+d; }
+function exk(k,si,ei) { return k+'_'+si+'_'+ei; }
+
+// ── SESSION DATA ─────────────────────────────────────────────────────────────
+function getSession(b, m, w, d) {
+  var x = b*3 + (m-1);
+  var isD = w===4, isPk = b===2, isPR = isPk&&w===1, isCl = b>=1&&!isD;
+  var bw=W.bench[x], pw=W.pull[x], rw=W.rd[x], lw=W.lat[x], cw=W.curl[x];
+  var hw=W.hip[x], dw=W.dl[x], sw=W.sq[x], shw=W.sh[x], fw=W.far[x], luw=W.lun[x], cp=W.chin[x];
+  var drop1 = Math.round(bw*0.8*2)/2;
+  var hipdrop1 = Math.round(hw*0.78);
+  var hipdrop2 = Math.round(hw*0.56);
+
+  var days = [
+    {
+      name:'DAY 1', label:'Upper Body Strength', type:'Push + Pull', color:'#E97B2C',
+      hi:['Bench: '+bw+'kg', 'Pulldown: '+pw+'kg', 'Lateral: '+lw+'kg'],
+      tags: isD?['Deload']:isCl?['Cluster','Wave']:['Wave Load'],
+      wu:['25 Banded Pull-Aparts (overhand + underhand)',
+          '15 Scapular Push-Ups — hold 2 sec at top',
+          '10 Cat-Cow + T-Spine Rotation',
+          'Dead Bug 8kg x10 + GHD Back Extension x12',
+          'Bar warm-up: 10 reps empty bar bench'],
+      secs:[
+        {t:'Superset A — 4 Rounds',
+         ex:[['Archer Push-Up','Bodyweight',isD?'3x8':'4x8-10 each side','Pause 1 sec at bottom. Harder than coach elevated push-up.'],
+             ['Pull-Up Negative (no band)','Bodyweight',isD?'3x3':'4x4-6 (5-sec lower)','Jump to top bar. SLOW down. No band at all.']]},
+        {t:isCl?'1. Bench Press — Cluster Sets':'1. Bench Press — Wave Loading',
+         upg:'Coach had 25kg top set. You start at '+bw+'kg today.',
+         ex:isCl?
+           [['Barbell Bench Press',bw+'kg','4 clusters (3 reps / rack 15s / repeat x4)','RPE 9. 4-sec eccentric each rep.'],
+            ['Drop Set (last cluster only)',drop1+'kg','Max reps (aim 8+)','No rest. Full range only.']]
+           :[['Barbell Bench Press',bw+'kg → '+(bw+7.5)+'kg',isD?'3x8':'5 sets: 8/6/5/4/3','Increase weight each set. 4-sec eccentric.'],
+             ['Drop Set (last set only)',drop1+'kg','Max reps','No rest. Chest to bar every rep.']]},
+        {t:'2. Lat Pulldown',
+         ex:[['Lat Pulldown (close grip)',pw+'kg',isD?'3x8':'5 sets: 10/8/8/6/6','Explosive pull. 4-sec eccentric. RPE 8-9.'],
+             ['Last set only','Same weight','10-sec dead hang then 3 slow negatives','Stay on machine after final set.']]},
+        {t:'3. Half-Kneeling Landmine Press',
+         ex:[['Landmine Press','Challenge weight',isD?'3x8':'4x8 each side','No hip shift. Brace hard.'],
+             ['Last set — mechanical drop','Same bar, go 2-arm','Max reps 2-arm','Immediately, no rest.']]},
+        {t:'4. Shoulder Superset — 4 Rounds',
+         ex:[['Bear Plank Shoulder Taps','10-15kg plate on back','x24 taps','Hips completely locked. No rotation.'],
+             ['DB Push Press','15-17kg','x8-10','Leg drive. Full lock-out overhead.']]},
+        {t:'5. Shoulder Tri-Set — 3 Rounds',
+         upg:'Rear delt: coach had 10kg, yours is '+rw+'kg. Lateral at full '+lw+'kg from Round 1.',
+         ex:[['DB Lateral Raise',lw+'kg','x12','2-sec ISO hold at 90 degrees.'],
+             ['Prone Rear Delt Raise',rw+'kg','x12','Pinch shoulder blades. Strict.'],
+             ['Front Plate Raise','12kg','x10','Controlled descent.'],
+             ['Last round only: +15 partials','Same weight','Short range at very top','Burn it out.']]},
+        {t:'6. Hammer Curl',
+         upg:'3-sec eccentric added. Rest-pause on last set. Target '+cw+'kg.',
+         ex:[['DB Hammer Curl',cw+'kg',isD?'2x10':'3x10-12','3-sec eccentric. Full supination at top.'],
+             ['Last set — Rest-Pause',cw+'kg','To failure, 20s rest, max again','New method vs your coach.']]},
+        {t:'7. Core — 3 Rounds',
+         ex:[['Toes-to-Bar (STRICT)','Bodyweight','x10-12','Pause at bottom. Dead hang. No kipping.'],
+             ['Heavy Russian Twists','12-16kg plate','x30 total','Feet off the floor.']]}
+      ],
+      fin:isD?null:['EMOM 15 min — 5 rounds x 3 stations',
+                    'Min 1: 10 Cal Row + 3 Burpee Broad Jumps (explosive)',
+                    'Min 2: 12 DB Thrusters + 10 Renegade Rows (5 each side)',
+                    'Min 3: 20 KB Swings (heavy) OR 250m SkiErg (hard pace)']
+    },
+    {
+      name:'DAY 2', label:'Lower Body Power', type:'Glutes / Hamstrings / Deadlift', color:'#C2410C',
+      hi:['Hip Thrust: '+hw+'kg', 'Deadlift: '+dw+'kg', 'Split Squat: '+sw+'kg/hand'],
+      tags: isD?['Deload']:isPR?['PR TEST']:b>=1?['Contrast']:['Power'],
+      wu:['Leg swings front/back + lateral x12 each',
+          'Fire Hydrant x12 each then SL Glute Bridge x10 each',
+          'Glute Bridge x12 then Single-Leg Bridge x8 each',
+          'Back Extensions x12 (add 10kg plate)',
+          '2 Rounds: Banded Walk + Lateral Lunge + 15 Goblet Squats'],
+      secs:[
+        {t:'1. Seated Hamstring Curl',
+         ex:[['Seated Hamstring Curl','Challenge weight',isD?'3x8':'4x10','4-sec eccentric. 1-sec squeeze at top.'],
+             ['Last set','Same weight','8 full reps + 12 short pulses','No rest between full and partial.']]},
+        {t:isPR?'2. Hip Thrust — PR TEST':'2. Barbell Hip Thrust — HEAVY',
+         upg:'Coach: 40kg. You start at '+hw+'kg. Double drop set is new.',
+         ex:isPR?
+           [['Hip Thrust — Find Your Max',hw+'kg, build up','Work to 5RM then attempt 3RM','3-sec hold at top on ALL reps.']]
+           :[['Barbell Hip Thrust',hw+'kg',isD?'3x6':'5x6-8 (RPE 9)','3-sec hold at top. FULL extension every rep.'],
+             ['After EACH set','Same weight','20-sec iso glute bridge hold','Keep load on the bar.'],
+             ['Last set — DOUBLE DROP',hipdrop1+'kg then '+hipdrop2+'kg','Max reps each drop, no rest','New vs coach. Push every drop to failure.']]},
+        {t:'3. Leg Press — Glute Bias',
+         ex:[['Leg Press (high foot position)','Heavy',isD?'3x10':'4x10-12','3-sec eccentric. Pause at 90 degrees.'],
+             ['Last set','Same weight','Single-leg alternating x10 each leg','One leg at a time, same load.']]},
+        {t:'4. '+(b>=1?'Trap Bar Deadlift':'Romanian Deadlift'),
+         upg:'Coach: 41kg. You start at '+dw+'kg.'+(b>=1?' Trap Bar introduced from Month 4.':''),
+         ex:[[b>=1?'Trap Bar Deadlift':'Romanian Deadlift',dw+'kg',isD?'3x4':'5x5 (2-min rest between)','2-sec stretch at bottom. Explosive up.'],
+             ['Pause rep (from Week 3)','Same weight','Add 1 pause rep per set (3s at shin)','Harder without adding weight.']]},
+        {t:'5. Unilateral Superset — 4 Rounds',
+         upg:'Split Squat: coach had 9kg, yours is '+sw+'kg per hand from Week 1.',
+         ex:[['Front Foot Elevated Split Squat',sw+'kg each hand',isD?'3x8 each leg':'8-10 each leg','4-sec down. Pause at bottom. Slow and deep.'],
+             ['Single-Leg RDL (contralateral load)','10-12kg','10 each leg','2-sec hold at bottom. Balance focus.'],
+             ['Last round only: Suitcase Carry','Heavy DB','30m, switch sides halfway','Anti-lateral flexion core.']]},
+        {t:'6. Explosive Tri-Set — 3 Rounds',
+         ex:[['DB Hip Thrust (explosive)','25-30kg','x12 (fast concentric)','Drive hips FAST up. Controlled down.'],
+             ['Broad Jumps','Bodyweight','x6 (max distance)','Stick every landing. Reset each rep.'],
+             ['Box Jump','Bodyweight','x5','Reactive power. New vs coach.']]},
+        {t:'7. Copenhagen Plank + Calf Raises',
+         ex:[['Copenhagen Plank','Bodyweight','3x30 sec each side','Last round: add 10 small pulses each.'],
+             ['Single-Leg Calf Raise','Add DB in hand','4x12-15 each','3-sec down. 2-sec hold at top.']]}
+      ],
+      fin:null
+    },
+    {
+      name:'DAY 3', label:'Upper Hypertrophy', type:'Shoulder / Back / Chest / Arms', color:'#16a34a',
+      hi:['Shoulder Press: '+shw+'kg each', 'Chin-Up: '+cp, 'Rear Delt: 12-15kg'],
+      tags: isD?['Deload']:['Hypertrophy','Arms'],
+      wu:['25 Banded Pull-Aparts + free arm rotations x15',
+          'Scapular Push-Ups x15 (2-sec hold at top)',
+          'Scapular Pull-Ups x10 (active hang, no elbow bend)',
+          'Dead Hang 45-60 sec',
+          '3 min bike — moderate pace'],
+      secs:[
+        {t:'1. DB Shoulder Press',
+         ex:[['DB Shoulder Press',shw+'kg each hand',isD?'3x10':'4 sets: 12/10/8/8','Strict form. No lumbar arch. 2-sec lowering.'],
+             ['Progression rule','—','Add 2kg when all 4 sets hit the top rep','Log weight every single session.']]},
+        {t:'2. Single-Arm Push Press — Mechanical Drop',
+         ex:[['Single-Arm DB Push Press','Heavy challenge',isD?'2x6':'3x6-8 each','Leg drive. Full lock-out.'],
+             ['Immediately after each set','Same weight','Max strict presses (no leg drive)','Harder to easier variation. No rest.']]},
+        {t:'3. Nonstop Shoulder Circuit — 4 Rounds',
+         upg:'Reverse flies at 12kg (above coach 10kg). Lateral at full 15kg from Round 1. Cobra hold is new.',
+         ex:[['Lateral Raise','15kg (full load from Round 1)','x12','2-sec ISO hold at 90 degrees.'],
+             ['Plank Shoulder Taps','Bodyweight','x12 taps','Hips completely locked.'],
+             ['DB Reverse Flies','12kg','x12','Pinch 1 sec at top.'],
+             ['DB Front Raise','12kg','x10','Controlled all the way down.'],
+             ['Prone Cobra Hold','Bodyweight','x30 sec','New addition vs coach plan.']]},
+        {t:'4. Chin-Ups — '+cp,
+         upg:'Coach had 5x1 chin-up. Your version: '+cp+'. Progresses to weighted by Month 4.',
+         ex:[['Chin-Up','Bodyweight',cp,'Dead hang start. 3-sec lower. Log every rep each set.'],
+             ['Between every chin-up set','Bodyweight','10 Scapular Pull-Ups','Active hang. No elbow bend.']]},
+        {t:'5. Back Superset — 4 Rounds',
+         ex:[['Seated Cable Row (HEAVY)','Challenge weight','x8-10','3-sec hold at peak contraction.'],
+             ['Wide-Grip Lat Pulldown','35kg+','x12-10','Explosive pull. 4-sec eccentric.']]},
+        {t:'6. Nonstop Chest Circuit — 4 Rounds',
+         ex:[['DB Chest Press','10-14kg each','x12','Full ROM. Slow eccentric.'],
+             ['DB Pullover','12kg','x12','Lats and serratus. Slow eccentric.'],
+             ['Push-Ups','Bodyweight','x max reps','Chest to floor. Full lock-out.'],
+             ['Incline Chest Flies','6-8kg','x12','Slight elbow bend throughout.'],
+             ['Plank Side Reach','Bodyweight','x10 each side','Open fully. Slow.']]},
+        {t:'7. Triceps + Biceps',
+         ex:[['Box Dips (plate on lap)','Add plate','3x10-12','3-sec lowering. Plate is new vs coach.'],
+             ['Cable Overhead Tricep Ext','Challenge weight','3x10-12','Full stretch at bottom.'],
+             ['Explosive CG Push-Ups','Bodyweight','x10 after last tricep set','Max speed. Quality reps.'],
+             ['DB Curls','15kg','3x10-12','3-sec eccentric. Full supination.'],
+             ['Hammer Curls — Rest-Pause','15kg','Last set: fail, 20s rest, max again','New method.']]}
+      ],
+      fin:isD?null:['FINISHER — 3-4 Rounds',
+                    '12 Single-Arm DB Snatch each side (explosive)',
+                    '12 V-Ups strict OR 10 Toes-to-Bar',
+                    '10 Deficit Hand-Release Push-Ups (hands on plates)',
+                    '250m SkiErg (hard — match pace every round)',
+                    '200m Shuttle Run (agility + HR spike)']
+    },
+    {
+      name:'DAY 4', label:'HYROX Circuit', type:'Conditioning / Lower Accessory', color:'#dc2626',
+      hi:['Farmer Carry: '+fw+'kg/hand', 'Lunges: '+luw+'kg total', 'Run: sub-'+(isPk?'4:45':'5:00')+'/km'],
+      tags: isD?['Deload']:isPk?['Race Sim','Timed']:['HYROX','Timed'],
+      wu:['3 min easy run (build pace to 75%)',
+          'Dynamic mobility: hips, hamstrings, T-spine',
+          '15 BW Squats + 10 Glute Bridges + 10 Superman + 20s Plank',
+          'Adductor/Abductor Machine: 2-3 rounds (load up quickly — you know your level)'],
+      secs:[
+        {t:'Pre-HYROX Strength',
+         ex:[['Leg Extensions','Moderate-heavy','2x12 (increase load round 2)','Full extension. 2-sec hold at top.'],
+             ['Single-Leg Wall Sit','Hold a plate Month 2+','2x30 sec each leg','Plate on top of thigh.']]},
+        {t:'HYROX CIRCUIT — Track total time. Target: '+(isD?'Easy pace':isPk?'Sub-50 min':'Sub-55 min'),
+         ex:isD?
+           [['1km Run','Easy','Record time only','No pressure on deload.'],
+            ['500m SkiErg','Controlled','—',''],
+            ['50m Sled Push','Light load','—',''],
+            ['80m Burpee Broad Jumps','Steady','—',''],
+            ['200m Farmer Carry',Math.round(fw*0.75)+'kg each hand','—','Reduced for deload.'],
+            ['40 Wall Balls','6kg','—','']]
+           :[['1km Run','Record pace',isPk?'Target sub-4:45/km':'Target sub-5:00/km','Sets the tone for the whole session.'],
+             ['500m SkiErg','Strong even effort','Negative split (faster last 250m)',''],
+             ['700m Run','Maintain pace','Do not walk',''],
+             ['50m Sled Push','Bodyweight load','Hard zone — not moderate','Low hips, short steps, no stopping.'],
+             ['700m Run','Maintain','',''],
+             ['50m Sled Pull','Challenge weight','Steady pull, no stopping',''],
+             ['700m Run','Maintain','',''],
+             ['80m Burpee Broad Jumps','Bodyweight','Consistent pace','Do not sprint and die.'],
+             ['700m Run','Maintain','',''],
+             ['200m Farmer Carry',fw+'kg each hand (up from 12-14kg)','No drops','Set down only if absolutely necessary.'],
+             ['700m Run','Maintain','',''],
+             ['100m Walking Lunges',luw+'kg total (up from 10-12kg)','Knee to floor each rep',''],
+             ['700m Run — Final Push','Give everything left','Faster than all other 700m runs',''],
+             ['40 Wall Balls','8kg ball','Split: 20-10-10','Full squat. Hit target height every rep.']]}
+      ],
+      fin:isD?null:['FINISHER — 1000m Row',
+                    'Controlled pace. Negative split the last 300m.',
+                    'Target: beat your previous row time by 2-5 seconds.']
+    }
+  ];
+  return days[d-1];
+}
+
+// ── RENDER PLAN ───────────────────────────────────────────────────────────────
+function updateStats() {
+  var cnt = Object.values(DONE).filter(Boolean).length;
+  var pct = Math.round(cnt/48*100);
+  document.getElementById('pct-lbl').textContent = pct+'%';
+  document.getElementById('prog-bar').style.width = pct+'%';
+  document.getElementById('s-done').textContent = cnt;
+  document.getElementById('s-weeks').textContent = Math.floor(cnt/4);
+}
+
+function switchBlock(b) {
+  curBlock = b;
+  var tabs = document.getElementById('tabs').children;
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].className = 'tab'+(i===b?' on':'');
+    tabs[i].style.borderColor = i===b ? BCOL[b] : '#2a2a2a';
+    tabs[i].style.background = i===b ? BCOL[b] : 'transparent';
+    tabs[i].style.color = i===b ? '#fff' : '#555';
+  }
+  renderPlan();
+}
+
+function renderPlan() {
+  var area = document.getElementById('plan-area');
+  area.innerHTML = '';
+  for(var m=1;m<=3;m++){
+    var mn = curBlock*3+m;
+    var mlabel = document.createElement('div');
+    mlabel.className = 'month-label';
+    mlabel.textContent = 'MONTH '+mn;
+    area.appendChild(mlabel);
+
+    for(var w=1;w<=4;w++){
+      var wsec = document.createElement('div');
+      wsec.className = 'week-section';
+
+      var wlabel = document.createElement('div');
+      wlabel.className = 'week-label';
+      wlabel.textContent = 'Week '+w;
+      if(w===4){
+        var dp = document.createElement('span');
+        dp.className = 'deload-tag';
+        dp.textContent = 'DELOAD';
+        wlabel.appendChild(dp);
+      }
+      wsec.appendChild(wlabel);
+
+      if(w===4){
+        var db = document.createElement('div');
+        db.className = 'deload-week';
+        db.innerHTML = '<div class="deload-week-title">DELOAD WEEK</div><div class="deload-week-sub">40% less volume &middot; 70-75% working weights &middot; RPE cap 7 &middot; No intensifiers</div>';
+        wsec.appendChild(db);
+      }
+
+      var grid = document.createElement('div');
+      grid.className = 'day-grid';
+
+      for(var d=1;d<=4;d++){
+        grid.appendChild(buildDayCard(curBlock,m,w,d));
+      }
+      wsec.appendChild(grid);
+      area.appendChild(wsec);
+    }
+  }
+}
+
+function buildDayCard(b,m,w,d){
+  var k = sk(b,m,w,d);
+  var s = getSession(b,m,w,d);
+  var isDone = !!DONE[k];
+
+  var card = document.createElement('div');
+  card.className = 'day-card'+(isDone?' done':'');
+  card.id = 'card-'+k;
+
+  var top = document.createElement('div');
+  top.className = 'card-top';
+  top.innerHTML =
+    '<div class="card-row">' +
+      '<div class="card-daynum" style="color:'+s.color+'">'+s.name+'</div>' +
+      '<div class="card-check" id="chk-'+k+'" style="'+(isDone?'background:#22c55e;border-color:#22c55e;color:#fff':'')+'">'+( isDone?'&#x2713;':'')+'</div>' +
+    '</div>' +
+    '<div class="card-name" style="color:'+s.color+'">'+s.label+'</div>' +
+    '<div class="card-type">'+s.type+'</div>';
+
+  var body = document.createElement('div');
+  body.className = 'card-body';
+  var hi = s.hi.map(function(h){ return '<div>'+h+'</div>'; }).join('');
+  var tags = s.tags.map(function(t){ return '<span class="card-tag" style="background:'+s.color+'22;color:'+s.color+'">'+t+'</span>'; }).join('');
+  body.innerHTML = '<div class="card-hi">'+hi+'</div><div class="card-tags">'+tags+'</div>';
+
+  card.appendChild(top);
+  card.appendChild(body);
+
+  card.addEventListener('click', function(){ openModal(b,m,w,d); });
+  return card;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(b,m,w,d){
+  curModal = {b:b,m:m,w:w,d:d};
+  var k = sk(b,m,w,d);
+  var s = getSession(b,m,w,d);
+  var isDone = !!DONE[k];
+
+  document.getElementById('m-dn').textContent = s.name;
+  document.getElementById('m-dn').style.color = s.color;
+  document.getElementById('m-nm').textContent = s.label;
+  document.getElementById('m-nm').style.color = s.color;
+  document.getElementById('m-sb').textContent = 'Month '+(b*3+m)+' · Week '+w+' · '+s.type;
+
+  var body = document.getElementById('m-body');
+  body.innerHTML = '';
+
+  // Warmup
+  var wu = document.createElement('div');
+  wu.className = 'warmup-block';
+  wu.innerHTML = '<div class="warmup-title" style="background:'+s.color+'">WARM-UP</div>';
+  var wub = document.createElement('div');
+  wub.className = 'warmup-items';
+  s.wu.forEach(function(l){ var p=document.createElement('div');p.className='warmup-item';p.textContent='· '+l;wub.appendChild(p); });
+  wu.appendChild(wub);
+  body.appendChild(wu);
+
+  // Sections
+  s.secs.forEach(function(sec,si){
+    var sw = document.createElement('div');
+    sw.className = 'section-block';
+    var st = document.createElement('div');
+    st.className = 'section-title';
+    st.textContent = sec.t;
+    sw.appendChild(st);
+
+    if(sec.upg){
+      var upg = document.createElement('div');
+      upg.className = 'upgraded-tag';
+      upg.innerHTML = '<span class="upgraded-arrow">&#9650;</span> '+sec.upg;
+      sw.appendChild(upg);
+    }
+
+    var exList = document.createElement('div');
+    exList.className = 'ex-list';
+
+    sec.ex.forEach(function(ex, ei){
+      var ek = exk(k,si,ei);
+      var on = !!EXDONE[ek];
+      var row = document.createElement('div');
+      row.className = 'ex-row'+(on?' ticked':'');
+      row.id = 'exrow-'+ek;
+
+      var info = document.createElement('div');
+      info.className = 'ex-info';
+      info.innerHTML =
+        '<div class="ex-name">'+ex[0]+'</div>'+
+        '<div class="ex-weight">'+ex[1]+'</div>'+
+        '<div class="ex-sets">'+ex[2]+'</div>'+
+        (ex[3]?'<div class="ex-note">'+ex[3]+'</div>':'');
+
+      var tick = document.createElement('button');
+      tick.className = 'ex-tick'+(on?' on':'');
+      tick.id = 'tick-'+ek;
+      tick.textContent = '✓';
+      tick.style.borderColor = on?'#22c55e':'#333';
+      tick.style.background = on?'#22c55e':'transparent';
+      tick.style.color = on?'#fff':'transparent';
+      tick.addEventListener('click', function(e){
+        e.stopPropagation();
+        EXDONE[ek] = !EXDONE[ek];
+        saveState('exd', EXDONE);
+        var r = document.getElementById('exrow-'+ek);
+        var t = document.getElementById('tick-'+ek);
+        if(r) r.className = 'ex-row'+(EXDONE[ek]?' ticked':'');
+        if(t){
+          t.className = 'ex-tick'+(EXDONE[ek]?' on':'');
+          t.style.borderColor = EXDONE[ek]?'#22c55e':'#333';
+          t.style.background = EXDONE[ek]?'#22c55e':'transparent';
+          t.style.color = EXDONE[ek]?'#fff':'transparent';
+        }
+      });
+
+      row.appendChild(info);
+      row.appendChild(tick);
+      exList.appendChild(row);
+    });
+
+    sw.appendChild(exList);
+    body.appendChild(sw);
+  });
+
+  // Finisher
+  if(s.fin){
+    var fb = document.createElement('div');
+    fb.className = 'finisher-block';
+    fb.innerHTML = '<div class="finisher-title">'+s.fin[0]+'</div>';
+    var fbody = document.createElement('div');
+    fbody.className = 'finisher-body';
+    s.fin.slice(1).forEach(function(l){ var p=document.createElement('div');p.className='finisher-item';p.textContent='· '+l;fbody.appendChild(p); });
+    fb.appendChild(fbody);
+    body.appendChild(fb);
+  }
+
+  // Notes
+  var nl = document.createElement('div');
+  nl.className = 'notes-label';
+  nl.textContent = 'Session Notes';
+  body.appendChild(nl);
+
+  var ta = document.createElement('textarea');
+  ta.className = 'notes-input';
+  ta.placeholder = 'Log your weights, how it felt, PRs hit...';
+  ta.value = NOTES[k] || '';
+  ta.addEventListener('input', function(){ NOTES[k]=ta.value; saveState('notes',NOTES); });
+  body.appendChild(ta);
+
+  // Complete button
+  var btn = document.createElement('button');
+  btn.id = 'complete-btn';
+  btn.className = 'complete-btn '+(isDone?'unmark':'mark');
+  btn.textContent = isDone ? '✓ Mark as Incomplete' : 'Mark Session Complete ✓';
+  btn.addEventListener('click', function(){
+    DONE[k] = !DONE[k];
+    saveState('done', DONE);
+
+    var card = document.getElementById('card-'+k);
+    var chk = document.getElementById('chk-'+k);
+    if(card) card.className = 'day-card'+(DONE[k]?' done':'');
+    if(chk){
+      chk.innerHTML = DONE[k]?'&#x2713;':'';
+      chk.style.background = DONE[k]?'#22c55e':'transparent';
+      chk.style.borderColor = DONE[k]?'#22c55e':'#333';
+      chk.style.color = DONE[k]?'#fff':'transparent';
+    }
+    btn.className = 'complete-btn '+(DONE[k]?'unmark':'mark');
+    btn.textContent = DONE[k]?'✓ Mark as Incomplete':'Mark Session Complete ✓';
+    updateStats();
+  });
+  body.appendChild(btn);
+
+  var overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('open');
+  overlay.scrollTop = 0;
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  curModal = null;
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+switchBlock(0);
+updateStats();
+</script>
+</body>
+</html>
